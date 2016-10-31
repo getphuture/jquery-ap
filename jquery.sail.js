@@ -1,6 +1,6 @@
 (function( _w, jQuery ) {
 
-    function Pjax( conf, myApp ) {
+    function Sail( conf, myApp ) {
 
         conf  = conf  || {};
         myApp = myApp || {};
@@ -40,7 +40,7 @@
             if ( isValid ) {
                 event.preventDefault();
                 event.stopPropagation();
-                $( this ).trigger( 'click.pjax' );
+                $( el ).trigger( 'click.pjax' );
                 var $frame = $( conf.frame );
                 var ajaxSetup = conf.ajax;
                 ajaxSetup.url = this.href;
@@ -74,12 +74,12 @@
 
     }
 
-    $.fn.ap_pjax = function( options ) {
+    $.fn.sail = function( options ) {
         if ( ! this.length ) {
             return this;
         }
         return this.each(function() {
-            new Pjax( $.extend({
+            new Sail( $.extend({
                 area: [ '.article' ]
               , ajax: {
                     timeout: 5000
