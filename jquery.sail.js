@@ -1,4 +1,4 @@
-(function( _w, jQuery ) {
+(function( _w, $ ) {
 
     function Sail( conf, myApp ) {
 
@@ -19,7 +19,18 @@
                 $head.find( conf.head ).appendTo( 'head' );
                 $frame.trigger( 'pjaxUpdateHeadAfter' );
             }
-            var $body = $( '<div />' ).html( data.replace( /([^]+<body[^>]*>|<\/body>[^]+)/g, '' ) );
+            var bodyAttributes = data.match( /<body(.*?)>/ )
+              , $body = $( 'body' ).removeAttr( 'id' ).removeAttr( 'class' );
+            if ( bodyAttributes && bodyAttributes.length && bodyAttributes[1] ) {
+                var $tmp  = $( '<div ' + bodyAttributes[ 1 ] + '></div>' );
+                $.each([ 'id', 'class' ], function( i, attr ){
+                    var val = $tmp.attr( attr ) || '';
+                    if ( val && val.length ) {
+                        $body.attr( attr, val );
+                    }
+                });
+            }
+            $body = $( '<div />' ).html( data.replace( /([^]+<body[^>]*>|<\/body>[^]+)/g, '' ) );
             $frame.trigger( 'pjaxUpdateContentBefore' );
             $.each( conf.area, function( n, val ) {
                 var area   = $.trim( val )
@@ -110,6 +121,9 @@
                         if ( event.which > 1 || event.metaKey || event.ctrlKey
                         || event.shiftKey || event.altKey ) {
                             // New window link (defunkt/jquery-pjax)
+                            isValid = false;
+                        }
+                        if ( this.hreflang && document.documentElement && document.documentElement.lang && this.href !== document.documentElement.lang ) {
                             isValid = false;
                         }
                         return isValid;
