@@ -114,6 +114,9 @@
                             // Anchor or something like this
                             isValid = false;
                         }
+                        if ( ! /(\.html|\.shtml|\.php|\.asp|\/)$/.test( pureURL( this.href ) ) ) {
+                            isValid = false;
+                        }
                         if ( this.target && ! /self/.test( this.target ) ) {
                             // New window link so skip...
                             isValid = false;
@@ -123,7 +126,8 @@
                             // New window link (defunkt/jquery-pjax)
                             isValid = false;
                         }
-                        if ( this.hreflang && document.documentElement && document.documentElement.lang && this.href !== document.documentElement.lang ) {
+                        if ( this.hreflang && document.documentElement && document.documentElement.lang && this.hreflang !== document.documentElement.lang ) {
+                            // An other language / version
                             isValid = false;
                         }
                         return isValid;
