@@ -8,9 +8,6 @@
         myApp.update = function( data, status, request ) {
             var $head = $( '<head />' ).html( data.replace( /([^]+<head[^>]*>|<\/head>[^]+)/g, '' ) );
             history.pushState( '', $head.find( 'title' ).text(), request.requestedURL );
-            if ( conf.callback && typeof conf.callback == 'function' ) {
-                conf.callback();
-            }
             var $frame = $( conf.frame );
             $frame.trigger( 'pjaxUpdateContentBefore' );
             if ( conf.head && conf.head.length ) {
@@ -36,10 +33,16 @@
                 var area   = $.trim( val )
                   , $areas = $( area );
                 if ( $areas.length ) {
-                    $( $areas[ $areas.length - 1 ] ).html( $body.find( area.split( ',' )[ 0 ] ).html() );
+                    $( $areas[ $areas.length - 1 ] )[ conf.replaceContent ? 'html' : 'append' ]( $body.find( area.split( ',' )[ 0 ] ).html() );
                 }
             });
+            if ( conf.pjaxUpdateContentAfter && typeof conf.pjaxUpdateContentAfter === 'function' ) {
+                conf.pjaxUpdateContentAfter();
+            }
             $frame.trigger( 'pjaxUpdateContentAfter' );
+            if ( conf.callback && typeof conf.callback === 'function' ) {
+                conf.callback();
+            }
         };
 
         myApp.fetch = function( event ) {
@@ -91,7 +94,7 @@
         }
         return this.each(function() {
             new Sail( $.extend({
-                area: [ '.article' ]
+                area: [ '#barba-wrapper .barba-container' ]
               , ajax: {
                     timeout: 5000
                 }
@@ -114,9 +117,6 @@
                             // Anchor or something like this
                             isValid = false;
                         }
-                        if ( ! /(\.html|\.shtml|\.php|\.asp|\/)$/.test( pureURL( this.href ) ) ) {
-                            isValid = false;
-                        }
                         if ( this.target && ! /self/.test( this.target ) ) {
                             // New window link so skip...
                             isValid = false;
@@ -127,7 +127,6 @@
                             isValid = false;
                         }
                         if ( this.hreflang && document.documentElement && document.documentElement.lang && this.hreflang !== document.documentElement.lang ) {
-                            // An other language / version
                             isValid = false;
                         }
                         return isValid;
@@ -145,6 +144,7 @@
                   , 'link[rel=\'next\']'
                 ].join( ', ' )
               , frame: this || _w
+              , replaceContent: 1
             }, options || {}) );
         });
     };
