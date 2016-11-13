@@ -1,5 +1,10 @@
 # jQuery Sail
 
+An other pjax-like library.  
+Give your visitors a smooth ajaxified browsing experience !
+
+* [Version Française](README_fr.md)
+* [日本語版](README_ja.md)
 
 ## Parameters
 
@@ -8,7 +13,7 @@
 List of nodes to be updated. In order to preserve the order, you need to give
 an array of string (nodes selector), not a jQuery object or a dom object.
 
-<pre class="lang-javascript"><code>$( window ).sail({
+<pre lang="javascript" class="lang-javascript"><code>$( window ).sail({
     area: [ '#main' ] // ok recommended
   /*
     area: [ '#main', '#side' ]  // Updating #main then #side
@@ -30,7 +35,7 @@ Global callback executed just after the ajax request succeeds.
 It won't be triggered in case of error or complete status.  
 By default Google Analytics pageview is triggered when available.
 
-<pre class="lang-javascript"><code>$( window ).sail({
+<pre lang="javascript" class="lang-javascript"><code>$( window ).sail({
     area:     [ '#main' ]
   , callback: false // Disable
  /* Default callback looks something like this
@@ -53,7 +58,7 @@ opening in new window. It is just a function with a couple of conditions
 returning a boolean. The function is executed when the user clicked something
 on the page
 
-<pre class="lang-javascript"><code>$( window ).sail({
+<pre lang="javascript" class="lang-javascript"><code>$( window ).sail({
     area:     [ '#main' ]
   , callback: false // Disable
   , link:     'a[href^="http://www.foo.com"]' // Custom
@@ -71,7 +76,7 @@ Any jQuery selectors accepted. Be default are
 * twitter:*** meta tags
 * canonical, prev and next link tags
 
-<pre class="lang-javascript"><code>$( window ).sail({
+<pre lang="javascript" class="lang-javascript"><code>$( window ).sail({
     area:     [ '#main' ]
   , callback: false // Disable
   , link:     'a[href^="http://www.foo.com"]' // Custom
