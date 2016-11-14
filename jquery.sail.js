@@ -1,9 +1,11 @@
+/* @license MIT LICENSE https://github.com/grenouille220/jquery-sail/blob/master/LICENSE */
 (function( _w, $ ) {
 
     function Sail( conf, myApp ) {
 
         conf  = conf  || {};
         myApp = myApp || {};
+        var pIndex = 0;
 
         myApp.update = function( data, status, request ) {
             var $head = $( '<head />' ).html( data.replace( /([^]+<head[^>]*>|<\/head>[^]+)/g, '' ) );
@@ -42,6 +44,30 @@
             $frame.trigger( 'pjaxUpdateContentAfter' );
             if ( conf.callback && typeof conf.callback === 'function' ) {
                 conf.callback();
+            }
+            // https://github.com/techvision/waiable/issues/22
+            // http://stackoverflow.com/questions/28282264/optimise-turbolinks-for-screen-readers
+            if ( $ && $.a11yfy ) {
+                $.a11yfy.assertiveAnnounce( document.title );
+            }
+            else {
+                var $assertiveAnnouncer = $( '.jquery-a11yfy-assertiveannouncer' );
+                if ( ! $assertiveAnnouncer || ! $assertiveAnnouncer.length ) {
+                    for ( var n = 0; n < 2; n++ ) {
+                        $( 'body' ).append( $( '<div>' ).attr({
+                            'id':            'jquery-a11yfy-assertiveannouncer' + n
+                          , 'class':         'jquery-a11yfy-assertiveannouncer'
+                          , 'role':          'log'
+                          , 'aria-live':     'assertive'
+                          , 'aria-relevant': 'additions'
+                        }).addClass( 'offscreen' ) );
+                    }
+                    $assertiveAnnouncer = $( '.jquery-a11yfy-assertiveannouncer' );
+                }
+                $( $assertiveAnnouncer[ pIndex ] ).empty();
+                pIndex += 1;
+                pIndex = pIndex % 2;
+                $( $assertiveAnnouncer[ pIndex ] ).append( $( '<p>' ).text( document.title ) );
             }
         };
 
