@@ -11,7 +11,6 @@
             var $head = $( '<head />' ).html( data.replace( /([^]+<head[^>]*>|<\/head>[^]+)/g, '' ) );
             history.pushState( '', $head.find( 'title' ).text(), request.requestedURL );
             var $frame = $( conf.frame );
-            $frame.trigger( 'pjaxUpdateContentBefore' );
             if ( conf.head && conf.head.length ) {
                 $frame.trigger( 'pjaxUpdateHeadBefore' );
                 $( 'head' ).find( conf.head ).remove();
@@ -53,6 +52,17 @@
             else {
                 var $assertiveAnnouncer = $( '.jquery-a11yfy-assertiveannouncer' );
                 if ( ! $assertiveAnnouncer || ! $assertiveAnnouncer.length ) {
+                    var css = document.createElement( 'style' )
+                      , def = '.offscreen { border: 0; clip: rect(0 0 0 0); clip: rect(0, 0, 0, 0); height: 1px; margin: -1px; overflow: hidden; padding: 0; width: 1px; position: absolute; }';
+                    // http://www.phpied.com/dynamic-script-and-style-elements-in-ie/
+                    css.setAttribute( 'type', 'text/css' );
+                    $( 'head' ).append( css );
+                    if ( css.styleSheet ) { // IE
+                        css.styleSheet.cssText = def;
+                    }
+                    else {
+                        css.appendChild( document.createTextNode( def ) );
+                    }
                     for ( var n = 0; n < 2; n++ ) {
                         $( 'body' ).append( $( '<div>' ).attr({
                             'id':            'jquery-a11yfy-assertiveannouncer' + n
@@ -139,8 +149,13 @@
                             // No element or not link
                             isValid = false;
                         }
-                        if ( pureURL( this.href ) === pureURL( _w.location.href ) ) {
+                        var currURL  = pureURL( this.href );
+                        if ( currURL === pureURL( _w.location.href ) ) {
                             // Anchor or something like this
+                            isValid = false;
+                        }
+                        if ( ! /(\/|\.html|\.shtml|\.asp|\.php)$/.test( pureURL( currURL ) ) ) {
+                            // Image, video or anything else
                             isValid = false;
                         }
                         if ( this.target && ! /self/.test( this.target ) ) {
