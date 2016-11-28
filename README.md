@@ -6,12 +6,25 @@ Give your visitors a smooth ajaxified browsing experience !
 * [Version Française](README_fr.md)
 * [日本語版](README_ja.md)
 
-## Parameters
+# Table of Contents
 
-### _Array_ area
+* [API](#api)
+  * [Core](#core)
+    * [area](#area)
+    * [aria](#aria)
+    * [head](#head)
+  * [Callbacks](#callbacks)
 
-List of nodes to be updated. In order to preserve the order, you need to give
-an array of string (nodes selector), not a jQuery object or a dom object.
+
+
+# API
+
+## Core
+
+### area
+
+Type: Array of Strings / Default: [ '#sail' ]  
+List of nodes to be updated. In order to preserve the order, you need to give an array of string (nodes selector), not a jQuery object or a dom object.
 
 <pre lang="javascript" class="lang-javascript"><code>$( window ).sail({
     area: [ '#main' ] // ok recommended
@@ -29,7 +42,12 @@ an array of string (nodes selector), not a jQuery object or a dom object.
 * <a href="https://get.phutu.red/alpha/jquery/demos/sail/basic1/" target="_blank">Demo 1 with one area</a>
 * <a href="https://get.phutu.red/alpha/jquery/demos/sail/basic2/" target="_blank">Demo 2 with two areas</a>
 
-### _Function_ callback
+### aria
+
+Type: Boolean / Default: true  
+Add an aria-like live notification.
+
+### Function_ callback
 
 Global callback executed just after the ajax request succeeds.  
 It won't be triggered in case of error or complete status.  
@@ -65,16 +83,42 @@ on the page
   , filter:   false // Disable
 });</code></pre>
 
-### _String_ head
+### head @type String 
+
+~~~javascript
+head: 'title, keyword, description, og, twitter, canonical, prev, next, alternate'
+~~~
 
 Tag inside the html header to be updated.  
-Any jQuery selectors accepted. Be default are
+Any **explicit** jQuery selectors accepted. By default are
 
 * title tag
-* keywords and description meta tags
-* og:*** meta tags
-* twitter:*** meta tags
-* canonical, prev and next link tags
+* keywords and description
+* og:*** tags
+* twitter:***  tags
+* itemprop tags
+* canonical, prev, next and alternate _link_ tags
+
+Except _title_, you need to explicitly write your selectors like 
+
+~~~javascript
+head: "title, meta[http-equiv='foo']"
+~~~
+
+If the selector does not contain brackets ( "[" or "]" )  for exemple
+
+~~~javascript
+head: "title, foo"
+~~~
+
+The plugin will automatically look for the following patterns:
+
+* title
+* meta[name^='foo']
+* meta[property^='foo']
+* meta[foo]
+* link[rel='foo']
+* link[foo]
 
 <pre lang="javascript" class="lang-javascript"><code>$( window ).sail({
     area:     [ '#main' ]

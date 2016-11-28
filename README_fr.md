@@ -2,8 +2,22 @@
 
 Offrez à vos visiteurs une expérience ajax fluide !
 
-### _Tableau_ area
+# Table des matières 
 
+* [API](#api)
+  * [Core](#core)
+    * [area](#area)
+    * [aria](#aria)
+    * [head](#head)
+  * Callbacks
+
+# API
+
+## Core
+
+### area
+
+Type: Array / Défaut: [ '#sail' ]
 Liste des noeuds à mettre à jour. Pour préserver l'ordre de mise à jour, donnez en argument un tableau 
 contenant le nom des noeuds. Pas un object jQuery ou une référence à un noeud DOM.
 
@@ -24,7 +38,12 @@ contenant le nom des noeuds. Pas un object jQuery ou une référence à un noeud
 * <a href="/alpha/jquery/demos/sail/basic1/" target="_blank">Démo 1 avec une zone mise à jour</a>
 * <a href="/alpha/jquery/demos/sail/basic2/" target="_blank">Démo 2 avec deux zones mises à jour</a>
 
-### _Fonction_ callback
+### aria
+
+Type: Booléen / Défaut: true
+Ajoute une notification aria et avertit en direct l'utilisateur en cas d'un changement de page.
+
+### Fonction_ callback
 
 Fonction exécutée juste après le succès de la requête ajax.  
 Ne seras pas exécuté en cas d'erreur. 
@@ -61,16 +80,42 @@ simplement d'une function contentant une série de conditions retournant un bool
   , filter:   false // Désactiver
 });</code></pre>
 
-### _String_ head
+### head @type Chaîne de caractères 
+
+~~~javascript
+head: 'title, keyword, description, og, twitter, canonical, prev, next, alternate'
+~~~
 
 Noeuds dans l'en-tête html qui doivent être mises à jour.  
-Sélecteurs jQuery accepté. Par défaut
+Sélecteurs spécifiques jQuery. Par défaut
 
 * titre
-* les métas description et mots-clés
-* les métas Open Graph (og:***)
-* les métas twitter:***
-* les balises de liens canonical, suivant et précédent
+* les balises description et mots-clés
+* les balises Open Graph
+* les balises Twitter
+* les balises itemprop
+* les balises de liens canonical, suivant, précédent et alternatifs
+
+A part la balise de titre il est préférable d'utiliser un sélecteur spécifique comme par exmple:
+
+~~~javascript
+head: "titre, meta[http-equiv='toto']"
+~~~
+
+Si le sélecteur ne contient pas de crochets ( "[" or "]" ) par exemple
+
+~~~javascript
+head: 'title, toto'
+~~~
+
+Le plugin recherchera automatiquement les modèles suivants:
+
+- titre
+- meta[name^='toto']
+- meta[property^='toto']
+- meta[toto]
+- link[rel='toto']
+- link[toto]
 
 <pre lang="javascript" class="lang-javascript"><code>$( window ).sail({
     area:     [ '#main' ]

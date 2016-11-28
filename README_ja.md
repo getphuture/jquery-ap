@@ -1,6 +1,28 @@
+# jQuery Sail
 
-### _Array_ area
+その他pjaxライブラリー。  
+円滑なページを切り替えるように！
 
+# 目次
+
+
+
+* [API](#api)
+  * [Core](#core)
+    * [area](#area)
+    * [aria](#aria)
+    * [head](#head)
+  * Callbacks
+
+
+
+# API
+
+## Core
+
+### area
+
+Type Array of Strings / Default: [ '#sail' ]  
 更新範囲の設定です。更新の順番を守るためノードのリストでまとめる。  
 jQueryやDOMオブジェクットじゃない。
 
@@ -21,7 +43,12 @@ jQueryやDOMオブジェクットじゃない。
 * <a href="https://get.phutu.red/alpha/jquery/demos/sail/basic1/" target="_blank">デモ１：エリア一つ</a>
 * <a href="https://get.phutu.red/alpha/jquery/demos/sail/basic2/" target="_blank">デモ２：エリア二つ</a>
 
-### _Function_ callback
+### aria
+
+Boolean / True  
+アクセシビィティ為にページタイトルのを自動的にお知らせするように。
+
+### Function_ callback
 
 コールバックの設定です。いつでもajaxのサックセース後に。  
 デフォルトは「Google Analytics」を更新する。
@@ -53,16 +80,41 @@ jQueryセレクターを使用する可能。
   , filter:   false // 無効にする
 });</code></pre>
 
+### 文字列 head
 
-### _String_ head
+~~~
+head: 'title, keyword, description, og, twitter, canonical, prev, next, alternate'
+~~~
 
-HTMLヘッダーの中にあるタグの設定です。デフォルト：
+HTMLヘッダーの中にあるタグの設定です。デフォルトは：
 
 * タイトルタグ
-* キーワードと説明のメータータグ
-* OGのメータータグ
-* Twitterのメータータグ
-* Canonical, 前へ、次へのリンクタグ
+* キーワードと説明のタグ
+* OGタグ
+* Twitterタグ
+* Itempropタグ
+* Canonical、Alternate、前へ、次へのリンクタグ
+
+特定のセレクターを使用してください。例：
+
+~~~javascript
+head: "title, meta[http-equiv='foo']"  
+~~~
+
+「 [ 」や「 ] 」がないの場合はこのプラグインは自動的にセレクターを探すようになります：
+
+```javascript
+head: 'title, foo'
+```
+
+そしたら本当のセレクター：
+
+- title
+- meta[name^='foo']
+- meta[property^='foo']
+- meta[foo]
+- link[rel='foo']
+- link[foo]
 
 <pre lang="javascript" class="lang-javascript"><code>$( window ).sail({
     area:     [ '#main' ]
