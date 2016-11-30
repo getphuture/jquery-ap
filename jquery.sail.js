@@ -81,48 +81,47 @@
 			_w.Waypoint.destroyAll();
         	$el.find( 'img' ).each(function() {
             	var $img   = $( this )
-                  , width  = $img.attr( 'width' ) || false
-                  , height = $img.attr( 'height' ) || false; 
+                  , width  = $img.attr( 'width' ) || 20
+                  , height = $img.attr( 'height' ) || 15;
             	if ( ! $img.attr( 'data-fullsize' ) ) {
                 	$img.attr( 'data-fullsize', $img.attr( 'src' ) );
                 }
             	var loader, attrs  = [ 'thumb', 'thumbnail', 'preload' ];
                 for ( var i = 0, lim = attrs.length; i < lim; i++ ) {
                 	loader = $img.attr( 'data-' + attrs[ i ] ) || false;
-                	if ( loader ) {
-                    	$img.addClass( 'jquery-sail-blur' ).css({
-                        	filter:       'url(\'#jquery-sail-blur\')'
-                        }).removeAttr( 'data-' + attrs[ i ] );
+                	if ( loader && loader.length ) {
+                    	$img.removeAttr( 'data-' + attrs[ i ] );
                     	break;
                     }
                 }
             	if ( ! loader ) {
                 	// https://codepen.io/shshaw/post/responsive-placeholder-image
-                   	loader = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' width%3D'" + width + "' height%3D'" + height + "' viewBox%3D'0 0 " + width + " " + height + "'%2F%3E";
+                   	loader = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'jquerysail' width%3D'" + width + "' height%3D'" + height + "' viewBox%3D'0 0 " + width + " " + height + "'%2F%3E";
                 }
-            	$img.attr( 'src', loader ).addClass( 'jquery-sail-placeholder' );
+            	$img.attr( 'src', loader );
             });
         	return $el;
         };
     
 	    myApp.setLazyloadEvents = function( $el ) {
-        	$el.find( 'img.jquery-sail-placeholder' ).waypoint({
+        	$el.find( 'img[src*="jquerysail"], img.jquery-sail-blur' ).each(function() {
+            	$( this ).data( 'fullsize', $( this ).attr( 'data-fullsize' ) );
+            	$( this ).removeAttr( 'data-fullsize' );
+            }).waypoint({
             	handler: function() {
 					var delay    = 0
                       , waypoint = this
                       , el       = waypoint.element;
-                	if ( /jquery-sail-blur/.test( el.className || '' ) ) {
-                    	delay = 750;
-                    }
                 	setTimeout(function() {
-                    	var $el = $( el );
-                    	$el.attr( 'src', $el.attr( 'data-fullsize' ) );
-                    	if ( $el.hasClass( 'jquery-sail-blur' ) ) {
-	                    	$el.removeClass( 'jquery-sail-blur' ).css( 'filter', 'none' );
-                        }
-    	    			$el.removeAttr( 'data-fullsize' ).removeClass( 'jquery-sail-placeholder' );
-                    	waypoint.destroy();
+                    	var $el = $( el )
+                          , img = new Image();
+                        img.onload = function() {
+	                    	$el.attr( 'src', this.src );
+                        };
+                    	img.src = $el.data( 'fullsize' );
+                        _w.Waypoint.refreshAll();
                     }, delay );
+                	waypoint.destroy();
             	}
               , offset: '90%'
             });
@@ -158,7 +157,7 @@
                 if ( $areas.length ) {
                     if ( ! conf.softReplace ) {
                         if ( conf.pjaxUpdateContentBefore && typeof conf.pjaxUpdateContentBefore === 'function' ) {
-	                        $( $areas[ $areas.length - 1 ] ).html( conf.pjaxUpdateContentBefore( $newContent.find( area.split( ',' )[ 0 ] ), conf.lazyload && _w.Waypoint ? myApp.setLazyloadView : function( $html ) { return $html }).html() );                        	
+	                        $( $areas[ $areas.length - 1 ] ).html( conf.pjaxUpdateContentBefore( $newContent.find( area.split( ',' )[ 0 ] ), conf.lazyload && _w.Waypoint ? myApp.setLazyloadView : function( $html ) { return $html.html(); }) );                        	
                         }
                     	else {
 	                        $( $areas[ $areas.length - 1 ] ).html( $newContent.find( area.split( ',' )[ 0 ] ).html() );
@@ -182,7 +181,7 @@
                 if ( $areas.length ) {
                     if ( ! conf.softReplace ) {
                         if ( conf.pjaxUpdateContentAfter && typeof conf.pjaxUpdateContentAfter === 'function' ) {
-	                        conf.pjaxUpdateContentAfter( $( $areas[ $areas.length - 1 ] ), conf.lazyload && _w.Waypoint ? myApp.setLazyloadEvents : function( $html ) { return $html });                        	
+	                        conf.pjaxUpdateContentAfter( $( $areas[ $areas.length - 1 ] ), conf.lazyload && _w.Waypoint ? myApp.setLazyloadEvents : function( $html ) { return $html; });                        	
                         }
                     }
                     else {
@@ -246,7 +245,7 @@
         }
         return this.each(function() {
             new Sail( $.extend({
-                area: [ '#barba-wrapper .barba-container' ]
+                area: [ '#sail' ]
               , aria: true
               , ajax: {
                     timeout: 5000
@@ -296,7 +295,7 @@
               , softReplace: 0
               , lazyload: 1
               , pjaxUpdateContentBefore: function( $el, lazyloader ) {
-                    return lazyloader( $el );
+                    return lazyloader( $el ).html();
                 }
               , pjaxUpdateContentAfter: function( $el, lazyloader ) {
               		return lazyloader( $el );
