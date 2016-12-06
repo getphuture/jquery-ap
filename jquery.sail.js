@@ -63,22 +63,10 @@
             }
         };
 
-
-    	if ( conf.lazyload ) {
-            var svgFilter = document.createElement( 'div' );
-        	svgFilter.className = 'offscreen';
-            svgFilter.innerHTML = [
-                '<svg width="0" height="0" xmlns="http://www.w3.org/2000/svg">'
-                  , '<filter id="jquery-sail-blur">'
-                      , '<feGaussianBlur stdDeviation="5"></feGaussianBlur>'
-                  , '</filter>'
-              , '</svg>'
-            ].join('');
-        	$( 'body' ).append( svgFilter );
-        }
-
 		myApp.setLazyloadView = function( $el ) {
 			_w.Waypoint.destroyAll();
+ 	         // https://codepen.io/shshaw/post/responsive-placeholder-image
+             var loader;
         	$el.find( 'img' ).each(function() {
             	var $img   = $( this )
                   , width  = $img.attr( 'width' ) || 20
@@ -95,16 +83,50 @@
                     }
                 }
             	if ( ! loader ) {
-                	// https://codepen.io/shshaw/post/responsive-placeholder-image
-                   	loader = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'jquerysail' width%3D'" + width + "' height%3D'" + height + "' viewBox%3D'0 0 " + width + " " + height + "'%2F%3E";
+                	loader = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'jquerysail' width%3D'" + width + "' height%3D'" + height + "' viewBox%3D'0 0 " + width + " " + height + "'%2F%3E";
                 }
-            	$img.attr( 'src', loader );
+            	$img.attr( 'src', loader ).wrap( '<span class="jquery-sail-placeholder jquery-placeholder-image"></span>' );
+            });
+        	$el.find( 'iframe' ).each(function() {
+            	var $iframe = $( this )
+                  , width = $iframe.attr( 'width' ) || 20
+                  , height = $iframe.attr( 'height' ) || 15
+                  , src = $iframe.attr( 'src' );
+                $iframe.wrap( '<span class="jquery-sail-placeholder jquery-placeholder-iframe"></span>' );
+            	loader = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg' id%3D'jquerysail' width%3D'" + width + "' height%3D'" + height + "' viewBox%3D'0 0 " + width + " " + height + "'%2F%3E";
+            	if ( /youtube/.test( src ) ) {
+                	// http://stackoverflow.com/questions/3452546/javascript-regex-how-to-get-youtube-video-id-from-url
+                	var regExp = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
+    				var match = src.match(regExp);
+   					if ( match && match.length && match[1] ) {
+                        loader = '//img.youtube.com/vi/' + match[ 1 ] + '/0.jpg';
+                    }
+                }
+            	$iframe.parent().append( '<img src="' + loader + '" width="' + width + '" height="' + height + '" alt="" data-fullsize="' + $iframe.parent().html().replace(/"/g, '&quot;')  +'" />' );
+            	$iframe.remove();
             });
         	return $el;
         };
     
 	    myApp.setLazyloadEvents = function( $el ) {
-        	$el.find( 'img[src*="jquerysail"], img.jquery-sail-blur' ).each(function() {
+        	$el.find( '.jquery-placeholder-iframe img' ).each(function() {
+            	$( this ).parent().data( 'fullsize', $( this ).attr( 'data-fullsize' ) );
+            	$( this ).removeAttr( 'data-fullsize' );
+            }).waypoint({
+            	handler: function() {
+					var delay    = 200
+                      , waypoint = this
+                      , el       = waypoint.element;
+                	setTimeout(function() {
+                    	var $el = $( el );
+                    	$el.replaceWith( $el.parent().data( 'fullsize' ) );
+                        _w.Waypoint.refreshAll();
+                    }, delay );
+                	waypoint.destroy();
+            	}
+              , offset: '90%'
+            });
+        	$el.find( '.jquery-placeholder-image img' ).each(function() {
             	$( this ).data( 'fullsize', $( this ).attr( 'data-fullsize' ) );
             	$( this ).removeAttr( 'data-fullsize' );
             }).waypoint({
@@ -116,7 +138,7 @@
                     	var $el = $( el )
                           , img = new Image();
                         img.onload = function() {
-	                    	$el.attr( 'src', this.src );
+	                    	$el.attr( 'src', this.src ).addClass( 'loaded' );
                         };
                     	img.src = $el.data( 'fullsize' );
                         _w.Waypoint.refreshAll();
