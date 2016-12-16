@@ -224,24 +224,40 @@
                 el.href = _w.location.pathname;
             }
             var isValid = ! conf.filter || ( conf.filter && conf.filter.call( el, event ) );
-            if ( isValid ) {
-                event.preventDefault();
-                event.stopPropagation();
-                $( el ).trigger( 'click.pjax' );
-                var $frame = $( conf.frame );
-                var ajaxSetup = conf.ajax;
-                ajaxSetup.url = this.href;
-                ajaxSetup.processData = false;
-                ajaxSetup.beforeSend = function(jqxhr, settings) {
-                    jqxhr.requestedURL = ajaxSetup.url;
-                    $frame.trigger( 'pjaxAjaxBeforeSend' );
-                };
-                ajaxSetup.complete = function() {
-                    $frame.trigger( 'pjaxAjaxComplete' );
-                };
-                ajaxSetup.success = myApp.update;
-                $.ajax( ajaxSetup );
+            if ( ! isValid ) {
+            	return;
             }
+			var opts = {
+    			url:       el.href
+    		  , container: $(el).attr('data-pjax')
+              , target:    el
+              , push:      true
+              , replace:   false
+              , scrollTo:  0
+              , type:      "GET"
+              , dataType:  "html"
+            };
+			var pjaxClickEvent = $.Event( 'pjax:click' )
+              , sailClickEvent = $.Event( 'sail:click' );
+        	$( el ).trigger( pjaxClickEvent, [ opts ] ).trigger( sailClickEvent, [ opts ] );
+			if ( pjaxClickEvent.isDefaultPrevented() || sailClickEvent.isDefaultPrevented() ) {
+            	return;
+            }
+			event.preventDefault();
+        	$( el ).trigger( 'pjax:clicked', [ opts ] ).trigger( 'sail:clicked', [ opts ] ).trigger( 'linkClicked', [ document.documentElement ] );
+            var $frame = $( conf.frame );
+            var ajaxSetup = conf.ajax;
+            ajaxSetup.url = this.href;
+            ajaxSetup.processData = false;
+            ajaxSetup.beforeSend = function(jqxhr, settings) {
+                jqxhr.requestedURL = ajaxSetup.url;
+                $frame.trigger( 'pjaxAjaxBeforeSend' );
+            };
+            ajaxSetup.complete = function() {
+                $frame.trigger( 'pjaxAjaxComplete' );
+            };
+            ajaxSetup.success = myApp.update;
+            $.ajax( ajaxSetup );
         };
 
         myApp.ajaxify = function() {
